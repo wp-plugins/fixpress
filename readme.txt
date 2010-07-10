@@ -1,4 +1,4 @@
-=== FixPresst ===
+=== FixPress ===
 Contributors:  pross
 Author URI:  http://www.pross.org.uk
 Plugin URL:  http://www.pross.org.uk/wordpress-plugins
