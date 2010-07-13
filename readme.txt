@@ -1,3 +1,3 @@
 === FixPress ===
 
-Stable tag: 0.2
+Stable tag: 0.3

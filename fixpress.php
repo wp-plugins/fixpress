@@ -2,12 +2,12 @@
 /*
 Plugin Name: FixPress
 Plugin URI: http://www.pross.org.uk
-Description: Fix the gallery so it validates XHTML and remove aria from default comment form
+Description: Fix the gallery so it validates XHTML and remove aria from default comment form. Plus other goodies!
 Author: Simon Prosser
-Version: 0.2
+Version: 0.3
 Author URI: http://www.pross.org.uk
 */
-define('FIXPRESS', '0.2');
+define('FIXPRESS', '0.3');
 //
 // fix the gallery...
 //
@@ -168,4 +168,29 @@ $fields['email'] = '<p class="comment-form-email">' .
 return $fields;
 }
 add_filter('comment_form_default_fields','fp_author');
+
+// fix google video!
+
+function wp_embed_handler_googlevideo( $matches, $attr, $url, $rawattr ) {
+	// If the user supplied a fixed width AND height, use it
+	if ( !empty($rawattr['width']) && !empty($rawattr['height']) ) {
+		$width  = (int) $rawattr['width'];
+		$height = (int) $rawattr['height'];
+	} else {
+		list( $width, $height ) = wp_expand_dimensions( 425, 344, $attr['width'], $attr['height'] );
+	}
+
+	//return apply_filters( 'embed_googlevideo', '<embed pro type="application/x-shockwave-flash" src="http://video.google.com/googleplayer.swf?docid=' . esc_attr($matches[2]) . '&amp;hl=en&amp;fs=true" style="width:' . esc_attr($width) . 'px;height:' . esc_attr($height) . 'px" allowFullScreen="true" allowScriptAccess="always" />', $matches, $attr, $url, $rawattr );
+	return apply_filters( 'embed_googlevideo', '<object type="application/x-shockwave-flash" data="http://video.google.com/googleplayer.swf?docid=' . esc_attr($matches[2]) . '" width="'  . esc_attr($width) . '" height="'  . esc_attr($height) . '"><param name="movie" value="http://video.google.com/googleplayer.swf?docid=' . esc_attr($matches[2]) . '" /><param name="FlashVars" value="playerMode=embedded" /><param name="wmode" value="transparent" /></object>', $matches, $attr, $url, $rawattr );
+	}
+wp_embed_register_handler( 'googlevideo', '#http://video\.google\.([A-Za-z.]{2,5})/videoplay\?docid=([\d-]+)(.*?)#i', 'wp_embed_handler_googlevideo' );
+
+
+
+// fix youtube oEmbed
+add_filter('oembed_dataparse', '_strip_embed');
+function _strip_embed($data) {
+    $data = preg_replace('|<embed.+?>.*?</embed>|i', '', $data);
+    return $data;
+}
 ?>
