@@ -9,7 +9,7 @@ Tags:  template, gallery, comments, media, embed, oembed, fix, XHTML, html5
 
 == Description ==
 
-Heres a simple plugin that fixes the gallery so it validates by pushing the css into <head> and a couple of other little tweaks.
+Heres a simple plugin that fixes the gallery so it validates by pushing the css into `<head>` and a couple of other little tweaks.
 Also fixes the comment form by removing the 'aria' bits that wont validate as XHTML.
 
 Now with youtube and googlevideo fixes!
