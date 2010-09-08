@@ -4,10 +4,10 @@ Plugin Name: FixPress
 Plugin URI: http://www.pross.org.uk
 Description: Fix the gallery so it validates XHTML and remove aria from default comment form. Plus other goodies!
 Author: Simon Prosser
-Version: 0.5
+Version: 0.7
 Author URI: http://www.pross.org.uk
 */
-define( 'FIXPRESS', '0.5' );
+define( 'FIXPRESS', '0.7' );
 add_action( 'wp_footer', '_fp_foot' );
 
 //
@@ -21,27 +21,7 @@ function conditionally_add_css () {
  		if( !empty( $posts ) )
 			foreach( $posts as $post )
 			if ( strstr( $post->post_content, '[gallery]' ) )
-				add_action('wp_head', 'fp_css');
-}
-
-
-function fp_css() {
-echo '<style type="text/css">
-.gallery { margin: auto; overflow: hidden; width: 100%; }
-.gallery dl { margin: 0px; }
-.gallery .gallery-item { float: left; margin-top: 10px; text-align: center; }
-.gallery img { border: 2px solid #cfcfcf; }
-.gallery .gallery-caption { margin-left: 0; }
-.gallery br { clear: both }
-.col-2 { width: 50% }
-.col-3 { width: 33.333% }
-.col-4 { width: 25% }
-.col-5 { width: 20% }
-.col-6 { width: 16.666% }
-.col-7 { width: 14.285% }
-.col-8 { width: 12.5% }
-.col-9 { width: 11.111% }
-</style>';
+wp_enqueue_style( 'fixpress_gallery_css', WP_PLUGIN_URL. '/fixpress/css/gallery.css', false, FIXPRESS );
 }
 
 remove_shortcode('gallery', 'gallery_shortcode');
@@ -185,17 +165,50 @@ wp_embed_register_handler( 'googlevideo', '#http://video\.google\.([A-Za-z.]{2,5
 
 
 
+
+
+
+
 // fix youtube oEmbed
-add_filter('oembed_dataparse', '_strip_embed');
-function _strip_embed($data) {
-    $data = preg_replace('|<embed.+?>.*?</embed>|i', '', $data);
-    preg_match('/youtube\.com\/v\/(.*)&/', $data, $matches);
-    $data = str_replace( 'width=', 'type="application/x-shockwave-flash" width=', $data);
-    $url = 'data="http://www.youtube.com/v/' . $matches[1] . '" type=';
-    $data = str_replace( 'type=', $url, $data);
-    $data = preg_replace('|><\/param>|', ' />', $data);
-    return $data;
+
+function add_transparent($oembvideo) {
+$patterns = array();
+$replacements = array();
+
+$patterns[] = '|<embed.+?>.*?</embed>|i';
+$patterns[] = '/width=/';
+$patterns[] = '/allowscriptaccess="always"/';
+$patterns[] = '/><\/param>/';
+
+$replacements[] = '';
+$replacements[] = 'type="application/x-shockwave-flash" width=';
+$replacements[] = 'wmode="transparent" allowscriptaccess="always"';
+$replacements[] = ' />';
+return preg_replace($patterns, $replacements, $oembvideo);
+
+	return $oembvideo;
 }
+add_filter('embed_oembed_html', 'add_transparent');
+
+
+// remove role= from searchform..
+function _remove_role($form) {
+
+     $form = '<form method="get" id="searchform" action="' . home_url( '/' ) . '" >
+      <div><label class="screen-reader-text" for="s">' . __('Search for:') . '</label>
+      <input type="text" value="' . get_search_query() . '" name="s" id="s" />
+      <input type="submit" id="searchsubmit" value="'. esc_attr__('Search') .'" />
+      </div>
+      </form>';
+
+return $form;
+}
+
+
+add_filter('get_search_form', '_remove_role');
+
+
+
 function _fp_foot() {
 	echo '
 <!-- Using FixPress v' . FIXPRESS .' -->
