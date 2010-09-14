@@ -4,10 +4,10 @@ Plugin Name: FixPress
 Plugin URI: http://www.pross.org.uk
 Description: Fix the gallery so it validates XHTML and remove aria from default comment form. Plus other goodies!
 Author: Simon Prosser
-Version: 0.7
+Version: 0.8
 Author URI: http://www.pross.org.uk
 */
-define( 'FIXPRESS', '0.7' );
+define( 'FIXPRESS', '0.8' );
 add_action( 'wp_footer', '_fp_foot' );
 
 //
@@ -177,11 +177,13 @@ $replacements = array();
 
 $patterns[] = '|<embed.+?>.*?</embed>|i';
 $patterns[] = '/width=/';
+$patterns[] = '/type="application/x-shockwave-flash" type="application/x-shockwave-flash"/';
 $patterns[] = '/allowscriptaccess="always"/';
 $patterns[] = '/><\/param>/';
 
 $replacements[] = '';
 $replacements[] = 'type="application/x-shockwave-flash" width=';
+$replacements[] = 'type="application/x-shockwave-flash"';
 $replacements[] = 'wmode="transparent" allowscriptaccess="always"';
 $replacements[] = ' />';
 return preg_replace($patterns, $replacements, $oembvideo);
